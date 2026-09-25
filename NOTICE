@@ -1,0 +1,30 @@
+dsh-deepseek-web-vision
+Copyright 2026 dhdbvcg
+
+This product is an unofficial, independent plugin for the DeepSeek Harness
+plugin ecosystem. It is NOT affiliated with, endorsed by, or sponsored by
+DeepSeek. "DeepSeek" is a trademark of its respective owner.
+
+──────────────────────────────────────────────────────────────────────────
+
+This project is a fork of dsh-deepseek-web-login:
+
+  dsh-deepseek-web-login
+  Copyright 2026 cv-superding (Ding Li)
+  https://github.com/cv-superding/dsh-deepseek-web-login
+
+The original implementation — including the provider architecture, the
+chat.deepseek.com web API client (PoW solving, session lifecycle, SSE
+parsing), the prompting-based tool-call protocol, the account store and
+the settings panel — is the work of the upstream author. All original
+upstream code remains Copyright 2026 cv-superding (Ding Li), licensed
+under the Apache License 2.0.
+
+The fork adds fixes and hardening to the image-input ("vision") path:
+a self-built multipart body that survives host fetch replacement,
+upload-readiness polling, rate-limit-aware retries, upload-cache
+self-healing, and per-turn image scoping. These changes are documented
+in README.md.
+
+Per the Apache License 2.0, this derivative work carries the same
+license and attributes the original author above.

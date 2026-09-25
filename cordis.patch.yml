@@ -1,0 +1,9 @@
+# DSH bundle 装配层：走官方装配（dsh plugin add / dev_install_package）时插入本插件。
+# 运行时注入（dev_inject_plugin）不读本文件。
+#
+# 注意：本插件是 dsh-deepseek-web-login 的独立分支（dsh-deepseek-web-vision），
+# 插件 id / provider 路由 / 数据目录 / HTTP 前缀都已换新，可与原版并存，互不冲突。
+- insert:
+    - id: dsh-deepseek-web-vision
+      name: dsh-deepseek-web-vision
+      config: {}
