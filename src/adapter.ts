@@ -227,6 +227,41 @@ export interface ModelSpec {
 }
 
 /**
+ * 组装「语言指令」并接到 system 头部。
+ *
+ * 为什么写在 system 最前面（而不是对话末尾追加一条 user）：语言是**全程约束** ——
+ * 要同时管住**思考块**与**正文**，还得在续写轮（另一份 prompt）同样生效；
+ * 放在 system 头部是对模型干扰最小、又不污染对话转写结构的位置。
+ *
+ * 措辞要点（实测 2026-09-25）：
+ *   - 明确「思考过程也用该语言」—— 只说"用中文回答"时，推理块仍然是英文；
+ *   - 明确「代码/命令/路径/日志/专有名词保持原样」—— 否则模型会把报错原文也翻一遍，
+ *     agent 就没法对着原文调试了；
+ *   - 明确「用户用其它语言提问时跟随用户」—— 避免用户有意用英文提问时被强行掰回中文。
+ */
+export function withLanguageDirective(system: string | undefined, language: string | undefined): string | undefined {
+  const lang = String(language ?? '').trim().toLowerCase()
+  if (!lang || lang === 'off' || lang === 'none') return system
+  const name = LANGUAGE_NAMES[lang] ?? lang
+  const directive =
+    `[语言要求] 请始终用${name}进行思考与回答：思考（推理）过程和最终回答都必须用${name}写。` +
+    '代码、命令、文件路径、报错日志、专有名词和引用的原文保持原样，不要翻译。' +
+    '无论用户用什么语言提问，思考与回答都坚持用' + name + '。'
+  const base = system?.trim()
+  return base ? `${directive}\n\n${base}` : directive
+}
+
+/** 常用语言的名字映射（指令里用"中文/English"这样的自然名字，比 BCP-47 码更有效）。 */
+const LANGUAGE_NAMES: Record<string, string> = {
+  zh: '中文',
+  'zh-cn': '简体中文',
+  'zh-tw': '繁体中文',
+  en: 'English',
+  ja: '日本語',
+  ko: '한국어',
+}
+
+/**
  * 网页免费模型目录。
  *
  * 权威依据：`GET /api/v0/client/settings?scope=model` 的 `model_configs`
@@ -337,6 +372,17 @@ export interface AdapterConfig {
    * 想支持「接着问刚才那张图」时可设成 1~2。
    */
   keepHistoryImages?: number
+  /**
+   * 思考与回答的语言（默认 `'zh'` ＝ 中文）。
+   *
+   * 为什么默认中文：网页端模型对英文输入经常直接用英文思考、英文作答（实测 2026-09-25：
+   * 推理块整段英文，正文也跟着英文），对中文用户不友好。通过在 system 头部注入一条
+   * 语言指令（不劫持对话内容本身），让**推理块和正文都用中文**；代码、命令、文件路径、
+   * 日志原文等仍保持原样，不会被强行翻译。
+   *
+   * `'off'` 关闭注入；其它值按"要求用该语言思考与回答"处理（如 `'en'`）。
+   */
+  responseLanguage?: string
   /** SSE 空闲超时（毫秒）。 */
   idleTimeoutMs?: number
   /** 是否在调用结束后删除网页端会话（默认 true）。 */
@@ -908,7 +954,7 @@ export function createAdapter(deps: AdapterDeps) {
     // 链式投喂需要 prompt 的**结构**（固定头 + 未截断的历史条目）才能算增量，
     // 所以这里取 parts、下面的 params 一起把 entries 传下去（见 context-feed.ts）。
     let promptParts = serializePromptParts({
-      system: options?.system,
+      system: withLanguageDirective(options?.system, deps.config.responseLanguage),
       messages: options?.messages ?? [],
       tools: (options?.tools ?? []) as ToolSchemaLike[],
       maxChars: deps.config.maxPromptChars ?? DEFAULT_MAX_PROMPT_CHARS,
@@ -1236,7 +1282,7 @@ export function createAdapter(deps: AdapterDeps) {
         )
         // 续写/纠正 prompt = 原对话 + 已输出的那一轮（作为 assistant 消息）+ 指令
         promptParts = serializePromptParts({
-          system: options?.system,
+          system: withLanguageDirective(options?.system, deps.config.responseLanguage),
           messages: [
             ...(options?.messages ?? []),
             { role: 'assistant', content: [{ type: 'text', text: partial }] },

@@ -355,6 +355,9 @@ export function apply(ctx: any, config: Config = {}): void {
     maxPromptChars: savedGate?.maxPromptChars ?? config.maxPromptChars ?? DEFAULT_MAX_PROMPT_CHARS,
     maxRefImages: savedGate?.maxRefImages ?? config.maxRefImages ?? DEFAULT_MAX_REF_IMAGES,
     keepHistoryImages: savedGate?.keepHistoryImages ?? config.keepHistoryImages ?? DEFAULT_KEEP_HISTORY_IMAGES,
+    // 思考与回答语言：默认中文（实测网页端对英文输入会用英文思考+回答，见 withLanguageDirective）。
+    // 允许用 cordis config（settings.yaml 的插件 config 块）覆盖，'off' 关闭注入。
+    responseLanguage: (config as any).responseLanguage ?? 'zh',
     idleTimeoutMs: config.idleTimeoutMs ?? 120_000,
     deleteWebSessions: config.deleteWebSessions !== false,
     // 会话复用：默认 20 轮共用一个网页端会话。0 = 关闭（回到每请求一个会话）

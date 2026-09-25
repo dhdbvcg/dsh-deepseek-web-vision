@@ -20,16 +20,11 @@ PoW 求解 + SSE 流式 + 提示词协议工具调用），并**修复了图片�
 
 与上游的关系、以及为什么要 fork，见 [与上游的差异](#与上游的差异)。
 
-## 安装
-
 ```bash
-# 方式 A：npm 作用域包（推荐，包已发布到 npmjs.com）
-dsh plugin --profile web add @dhdbvcg/dsh-deepseek-web-vision
-
-# 方式 B：从 GitHub 直接装配（等价，走 git 源）
+# 方式 A：从 GitHub 直接装配（推荐）
 dsh plugin --profile web add github:dhdbvcg/dsh-deepseek-web-vision
 
-# 方式 C：克隆后本地装配
+# 方式 B：克隆后本地装配
 git clone https://github.com/dhdbvcg/dsh-deepseek-web-vision.git
 dsh plugin --profile web add ./dsh-deepseek-web-vision
 ```
@@ -101,6 +96,7 @@ Blob/FormData 归属完全解耦；同时删掉**所有大小写变体**的 `con
 | 人为注入 2 次 `40029` 限流 | ✅ 自动退避重试后成功 |
 | 对照：不等就绪直接引用 | ❌ `code 9 invalid ref file id` |
 | 历史图 + 新图混合会话 | ✅ 只上传新图，历史图显示 `[earlier image omitted]` |
+| 英文提问（语言指令默认开） | ✅ 推理块与回答均为中文 |
 
 ## 配置
 
@@ -110,6 +106,20 @@ Blob/FormData 归属完全解耦；同时删掉**所有大小写变体**的 `con
 | --- | --- | --- |
 | `keepHistoryImages` | `0` | 除「本轮的图」外，额外附带最近几张历史图片。`0` = 只发本轮；1~2 适合「接着问刚才那张图」 |
 | `maxRefImages` | `24` | 单次请求 `ref_file_ids` 的硬上限（防 `code 10 too many ref file`），语义与上游一致 |
+
+### 中文思考与回答（vision fork 新增）
+
+网页端模型对英文输入经常**整段英文思考、英文作答**。本 fork 默认在 system 头部注入一条
+语言指令：**推理过程与最终回答都用中文**；代码、命令、文件路径、报错日志、专有名词保持原样。
+用英文提问也会用中文回答（实测）。想换语言或关闭：
+
+```yaml
+# settings.yaml → 插件 config（或 profile 的 cordis 配置里本插件那行）
+plugins:
+  - id: dsh-deepseek-web-vision
+    config:
+      responseLanguage: zh   # zh（默认）/ en / ja / … 任意语言名可解析；'off' 关闭注入
+```
 
 ## 与上游的差异（不冲突设计）
 
