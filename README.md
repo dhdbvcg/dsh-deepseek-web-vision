@@ -23,10 +23,13 @@ PoW 求解 + SSE 流式 + 提示词协议工具调用），并**修复了图片�
 ## 安装
 
 ```bash
-# 方式 A：从本仓库直接装配（推荐）
+# 方式 A：npm 作用域包（推荐，包已发布到 npmjs.com）
+dsh plugin --profile web add @dhdbvcg/dsh-deepseek-web-vision
+
+# 方式 B：从 GitHub 直接装配（等价，走 git 源）
 dsh plugin --profile web add github:dhdbvcg/dsh-deepseek-web-vision
 
-# 方式 B：克隆后本地装配
+# 方式 C：克隆后本地装配
 git clone https://github.com/dhdbvcg/dsh-deepseek-web-vision.git
 dsh plugin --profile web add ./dsh-deepseek-web-vision
 ```

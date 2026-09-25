@@ -1,8 +1,10 @@
 {
-  "name": "dsh-deepseek-web-vision",
+  "name": "@dhdbvcg/dsh-deepseek-web-vision",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.2.0",
   "description": "Unofficial DSH plugin (fork of dsh-deepseek-web-login): use chat.deepseek.com web models as a DSH LLM provider with fixed & hardened image input (self-built multipart, upload-readiness wait, per-turn image scope), browser login capture + PoW solving + SSE streaming + prompting-based tool calls. Provider route: deepseek-web-vision",
-  "private": true,
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
@@ -29,7 +31,7 @@
   "license": "Apache-2.0",
   "author": "dhdbvcg",
   "contributors": [
-    "cv-superding (Ding Li) — original dsh-deepseek-web-login"
+    "cv-superding (Ding Li) - original dsh-deepseek-web-login"
   ],
   "repository": {
     "type": "git",
