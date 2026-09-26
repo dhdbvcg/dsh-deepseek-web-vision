@@ -2,6 +2,26 @@
 
 本项目遵循大致语义化版本；日期为本地时间。
 
+## 0.2.2 — 2026-09-26
+
+### 修：client 产物形态错误导致 client 图整片加载失败
+
+症状：DSH web 界面显示「Failed to load plugins」，`@deepseek-ai/dsh-client-hmr` 等一长串
+client 模块全部报 `loaded without registering "…" via __ModuleLoader__.load`。
+
+根因：DSH 的 client 模块系统要求每个 bundle **自己调用**
+`window.__ModuleLoader__.load({ id, factory })` 注册工厂（factory 以 `require` 拿依赖、
+`module.exports` 吐导出）。上游的 `lib/client.js` 就是这个形态（CJS 转换 + 包装层）；
+本 fork 0.2.0/0.2.1 用 tsdown 默认 ESM 产出 client，没有任何注册调用 —— loader 加载脚本后
+找不到注册项，图启动失败连累所有 bundle 报错。
+
+修法（`tsdown.config.ts`）：client 构建改为 `format: 'cjs'`（react 外部化成 `require`），
+banner 打开 `__ModuleLoader__.load` 包装并声明局部 `module`/`exports`，footer 返回导出
+—— 与上游产物形态同构。⚠️ banner 里**不要**声明 react：rolldown 的 CJS 输出会自己生成
+`let react = require("react")`，banner 再来一份就是重复声明 SyntaxError（实测踩到）。
+
+本地以模拟 `__ModuleLoader__` 的加载冒烟验证：注册 id 正确、导出 `apply`/`inject: ["slots"]`。
+
 ## 0.2.1 — 2026-09-26
 
 ### 新：中文思考与回答（默认开启）

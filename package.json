@@ -1,6 +1,6 @@
 {
   "name": "dsh-deepseek-web-vision",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "Unofficial DSH plugin (fork of dsh-deepseek-web-login): use chat.deepseek.com web models as a DSH LLM provider with fixed & hardened image input (self-built multipart, upload-readiness wait, per-turn image scope), browser login capture + PoW solving + SSE streaming + prompting-based tool calls. Provider route: deepseek-web-vision",
   "type": "module",
